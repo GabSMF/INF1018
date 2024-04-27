@@ -37,8 +37,8 @@ int main() {
         {'I', 13, 4},
         {'E', 1, 3},
         {' ', 5, 3},
-        {0, 0, 0},  // Supondo ser um controle ou espaço reservado
-        {4, 0, 12}  // Mantendo a linha conforme você especificou
+        {0, 0, 0}, 
+        {4, 0, 12}  
     };
 
     if (!arqTexto || !arqBin) {
