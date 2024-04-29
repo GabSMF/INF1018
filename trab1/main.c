@@ -2,6 +2,66 @@
 #include <stdlib.h>
 #include "codifica.h"
 
+void hex_dump(FILE *fp) {
+    unsigned char buffer[16];  // Buffer para armazenar os dados lidos
+    size_t bytes_lidos;
+    int i;
+
+    if (fp == NULL) {
+        fprintf(stderr, "Erro: ponteiro de arquivo inválido.\n");
+        return;
+    }
+
+    // Lê o arquivo em blocos de 16 bytes
+    while ((bytes_lidos = fread(buffer, 1, 16, fp)) > 0) {
+        // Mostra cada byte em hexadecimal
+        for (i = 0; i < bytes_lidos; i++) {
+            printf("%02x ", buffer[i]);
+        }
+        printf("\n");
+    }
+}
+
+typedef struct node {
+    char simbolo;
+    struct node* left;
+    struct node* right;
+} Node;
+
+Node* createNode(char simbolo) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->simbolo = simbolo;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+void insert(Node *root, unsigned int codigo, int tamanho, char simbolo) {
+    Node *current = root;
+    for (int i = tamanho - 1; i >= 0; i--) {
+        int bit = (codigo >> i) & 1;
+        if (bit == 0) {
+            if (!current->left) {
+                current->left = createNode('\0');
+            }
+            current = current->left;
+        } else {
+            if (!current->right) {
+                current->right = createNode('\0');
+            }
+            current = current->right;
+        }
+    }
+    current->simbolo = simbolo;
+}
+
+void freeTree(Node *root) {
+    if (root) {
+        freeTree(root->left);
+        freeTree(root->right);
+        free(root);
+    }
+}
+
 int main() {
     FILE *arqTexto = fopen("teste1.txt", "r");
     FILE *arqBin = fopen("teste1.bin", "wb");
@@ -37,7 +97,7 @@ int main() {
         {'I', 13, 4},
         {'E', 1, 3},
         {' ', 5, 3},
-        {0, 0, 0}, 
+        {0, 0, 0},  
         {4, 0, 12}  
     };
 
@@ -45,10 +105,15 @@ int main() {
         perror("Erro ao abrir os arquivos");
         return EXIT_FAILURE;
     }
-
     compacta(arqTexto, arqBin, tabela);
 
+
     fclose(arqTexto);
+    fclose(arqBin);
+
+    arqBin = fopen("teste1.bin","rb");
+
+    hex_dump(arqBin);
     fclose(arqBin);
 
     arqBin = fopen("teste1.bin", "rb");
@@ -59,7 +124,7 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    descompacta(arqBin, arqTextoOut, tabela);
+    descompacta2(arqBin, arqTextoOut, tabela);
 
     fclose(arqBin);
     fclose(arqTextoOut);
@@ -72,7 +137,7 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    descompacta(arqBin2, arqTextoOut2, tabela);
+    descompacta2(arqBin2, arqTextoOut2, tabela);
 
     fclose(arqBin2);
     fclose(arqTextoOut2);
