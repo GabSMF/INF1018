@@ -2,40 +2,6 @@
 #include <stdlib.h>
 #include "codifica.h"
 
-
-typedef struct node {
-    char simbolo;
-    struct node* left;
-    struct node* right;
-} Node;
-
-Node* createNode(char simbolo) {
-    Node* newNode = (Node*)malloc(sizeof(Node));
-    newNode->simbolo = simbolo;
-    newNode->left = newNode->right = NULL;
-    return newNode;
-}
-
-void insert(Node *root, unsigned int codigo, int tamanho, char simbolo) {
-    Node *current = root;
-    for (int i = tamanho - 1; i >= 0; i--) {
-        int bit = (codigo >> i) & 1;
-        if (bit == 0) {
-            if (!current->left) {
-                current->left = createNode('\0');
-            }
-            current = current->left;
-        } else {
-            if (!current->right) {
-                current->right = createNode('\0');
-            }
-            current = current->right;
-        }
-    }
-    current->simbolo = simbolo;
-}
-
-
 void compacta(FILE *arqTexto, FILE *arqBin, struct compactadora *v) {
     char c;
     unsigned int buffer = 0;
@@ -71,32 +37,34 @@ void compacta(FILE *arqTexto, FILE *arqBin, struct compactadora *v) {
 }
 
 void descompacta(FILE *arqBin, FILE *arqTexto, struct compactadora *v) {
-    Node *root = createNode('\0');
-    for (int i = 0; i < 32; i++) {
-        insert(root, v[i].codigo, v[i].tamanho, v[i].simbolo);
-    }
-    
-    Node *current = root;
-    int bit, byte;
+    int byte, bit;
+    unsigned int codigoAtual = 0;
+    int tamanhoAtual = 0;
+    int encontrado;
+
     while ((byte = fgetc(arqBin)) != EOF) {
         for (int i = 7; i >= 0; i--) {
             bit = (byte >> i) & 1;
-            current = bit ? current->right : current->left;
-            if (current->simbolo != '\0') {
-                if (current->simbolo == 4) { // EOT
-                    return;
+            codigoAtual = (codigoAtual << 1) | bit;
+            tamanhoAtual++;
+
+            encontrado = 0;  // 'encontrado' inicializado como falso (0)
+            for (int j = 0; j < 32; j++) {
+                if (v[j].tamanho == tamanhoAtual && v[j].codigo == codigoAtual) {
+                    if (v[j].simbolo == 4) { // EOT
+                        return;
+                    }
+                    fputc(v[j].simbolo, arqTexto);
+                    codigoAtual = 0;
+                    tamanhoAtual = 0;
+                    encontrado = 1;  // 'encontrado' é verdadeiro (1)
+                    break;
                 }
-                fputc(current->simbolo, arqTexto);
-                current = root; // Reset to root for the next character
+            }
+            if (!encontrado && tamanhoAtual == 32) { // Limite máximo de bits para segurança
+                codigoAtual = 0;
+                tamanhoAtual = 0;
             }
         }
-    }
-}
-
-void freeTree(Node *root) {
-    if (root) {
-        freeTree(root->left);
-        freeTree(root->right);
-        free(root);
     }
 }
