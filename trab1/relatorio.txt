@@ -1,0 +1,89 @@
+Relatório Trabalho 1 - INF1018
+
+Integrantes:
+Gabriel da Silva Marques Ferreira - 2210442 - 3WA
+Arthur Cury Sampaio - 2211857 - 3WA
+
+Compacta:
+Base dos Testes Compacta:
+Para iniciar os testes para a função compacta, fomos primeiro no caso mais simples, com a própria tabela dada de exemplo no enunciado: para conseguirmos visualizar os resultados criamos uma função hexdump que lê arquivos binários em blocos de 16 Bytes e mostra cada byte em hexadecimal. Para então convertermos manualmente o texto inserido no arq texto para hexadecimal e comparar com a saída dada pela hexdump, que caso fossem semelhantes, significaria que nosso codigo implementou corretamente a compactação. Essa função foi usada por todo o processo de teste da compacta.
+
+abaixo segue a hexdump:
+
+void hex_dump(FILE *arqBin) {
+    unsigned char buffer[16];
+    int lido;
+    int i;
+
+    // Lê o arquivo em blocos de 16 bytes
+    while ((lidos = fread(buffer, 1, 16, arqBin)) > 0) {
+        // printa eles em hexa
+        for (i = 0; i < lidos; i++) {
+            printf("%02x ", buffer[i]);
+        }
+        printf("\n");
+    }
+}
+
+Testes:
+Como nosso código utiliza de um "bucket" para armazenar o código dos simbolos ao longo da leitura precisavamos testar como ele estava lidando com os diferentes tamanhos, como por exemplo tamanhos maiores ou iguais a 8, fato que ocasionaria um overflow e o código teria que lidar no momento de armazenar os dados no arquivo binário para não perder informação ou misturar. Teste esse que inicialmente não estava funcionando por conta que não estávamos reservando espaço no bucket com bitshift corretamente, mas após essa correção, mesmo sendo testado em casos do bucket estar com tamanho, maior, menor ou igual a 8, todos funcionaram.
+
+Outra problema, foi na hora de testar o processamento do EOT, ao final da leitura, já que teriamos que escrever os bits que sobraram no Bucket após a nossa recursão terminar. Inicialmente tivemos problemas no caso em que o tamanho restante no Bucket era < 8, mas corrigimos isso colocando no código a criação de uma máscara que zera os bits mais significativos nesse caso, para que assim o código escrevesse o fim do texto corretamente.
+
+Por questões de tentar exaurir as possibilidades de casos de erro testamos também:
+- Textos grandes e curtos
+- Textos com caracteres de mesmo código, mas tamanhos diferentes
+- Textos com caracteres de mesmo tamanho, mas códigos diferentes
+- Textos com caracteres inválidos
+Todos os testes deram certo.
+
+Por precaução criamos uma outra struct compactadora livre de prefixo utilizando dos conceitos aprendidos em EDA e testamos os mesmos casos, para testar se nosso código estava enviesado pelo exemplo dado no enunciado, o que não foi o caso, as compactações também foram bem sucedidas. Segue abaixo um exemplo:
+
+struct compactadora test1[32] = {
+        {'A',60,6},
+        {'B',61,6},
+        {'C',62,6},
+        {'D',63,6},
+        {'E',5,5},
+        {'F',6,5},
+        {'G',7,5},
+        {'H',8,5},
+        {'I',9,5},
+        {'J',10,5},
+        {'K',11,5},
+        {'L',12,5},
+        {'M',13,5},
+        {'N',14,5},
+        {'O',15,5},
+        {'P',16,5},
+        {'Q',17,5},
+        {'R',18,5},
+        {'S',19,5},
+        {'T',20,5},
+        {'U',21,5},
+        {'V',22,5},
+        {'W',23,5},
+        {'X',24,5},
+        {'Y',25,5},
+        {'Z',26,5},
+        {' ',3,5},
+        {',',27,5},
+        {'.',2,5},
+        {'\n',14,4},
+        {0,0,0},
+        {'EOT',0,5}
+};
+
+Descompacta:
+Base dos testes Descompacta:
+Para testar a função descompacta, utilizamos da própria função compacta, para vermos se descompactaria corretamente o texto inserido no arquivo. Essa função foi relativamente mais intuitiva se comparar com a anterior. Nossa maior dificuldade foi entender o pontapé inicial de: armazenar um byte do arqBin -> ler pouco a pouco -> a cada passo dado verificar na tabela se existe. Depois que entendemos isso, foi questão de usar o bit shift da forma correta para chegar nesse resultado e checarmos o risco de overflow.
+
+Testes:
+O maior problema que tivemos, foi em relação ao overflow caso não fosse encontrado nenhum código válido na tabela, então nesse caso colocamos um limite máximo de 32 bits para o tamanho do código que está sendo construido ao longo do programa.
+
+Fizemos também os mesmos testes feitos somente com a compacta, só que agora utilizando as duas funções.
+
+Todos os testes foram repetidos com a outra tabela e o nosso código nesse primeiro momento só estava funcionando com a tabela inicial, mas percebemos que era por conta que o retorno da função estava acontecendo caso o simbolo do caractere fosse igual ao simbolo de EOT dado na tabela de exemplo e não ao simbolo qualquer guardado na 31° posição. Após isso os testes com a nova tabela foram bem sucedidos
+
+Conclusão:
+Para os testes feitos, nossas funções compacta e descompacta funcionaram de acordo. Nossas maiores dificuldades com o trabalho foram essas "sacadas" nas questões de overflow do bucket e no processamento do EOT quando tamanho fosse < 8. Ficamos bastante tempo "presos" na compacta o que levou a termos feito testes mais extensos nela se comparado com a descompacta.
