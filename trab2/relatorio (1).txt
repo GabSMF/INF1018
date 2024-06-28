@@ -1,0 +1,192 @@
+Relatório Segundo Trabalho - INF1018 - 2024.1
+
+Gabriel da Silva Marques Ferreira Turma 3WA
+Pedro Augusto Villarinho dos Santos 2211358 3WA
+
+A seguir alguns exemplos de funções da LinB que usamos para testar. Testamos tanto funções que foram traduzidas e executadas com sucesso quanto funções que geraram erro. Inicialmente foram utilizadas os exemplos propostos no enunciado (caso 1 ao 3)
+Criamos também uma função main para nos auxiliar nos testes, assim como recomendado no enunciado. Então o comando de compilação ficou no seguinte formato:
+
+gcc -Wall -Wa,--execstack -o compilador main.c compilalinb.c
+
+Comando de compilação:
+gcc -Wall -Wa,--execstack -o compilador main.c compilalinb.c
+
+Sucessos:
+=====================================================================
+
+CASO 1) f(x,y) = (x+y) * (x-y):
+
+Comando executado: ./compilador teste1.linb
+
+parâmetro passado na main: p1 = 10 e p2 = 3
+Saída no terminal:
+
+v1 <= p1 + p2
+p1 <= p1 - p2
+v1 <= v1 * p1
+ret
+Valor retornado -> 91
+
+
+=====================================================================
+
+CASO 2) fat(n)
+
+Comando executado: ./compilador teste2.linb
+
+parâmetro passado na main p1: <= 10
+Saída no Terminal:
+
+v1 <= $0 + $1
+if p1 4
+ret
+v1 <= v1 * p1
+p1 <= p1 - $1
+if p1 4
+ret
+Valor retornado -> 368800
+
+=====================================================================
+
+CASO 3) squat(n)
+
+Comando executado: ./compilador teste3.linb
+
+parâmetro passado na main: p1 <= 3
+
+Saída no Terminal:
+
+v1 <= $0 + $0
+v2 <= $1 + $0
+p1 <= p1 + $1
+v3 <= p1 - v2
+if v3 7
+ret
+v3 <= v2 * v2
+v1 <= v1 + v3
+v2 <= v2 + $1
+if v2 4
+Valor retornado -> 14
+
+CASO 4) Função soma quadrados
+
+Comando executado: ./compilador teste4.linb
+
+parametro passado na main: p1 <= 10 e p2 <= 3
+
+v1 <= $0 + $0
+v2 <= p1 + $0
+p3 <= p2 + $1
+v3 <= p3 - v2
+if v3 7
+ret
+v3 <= v2 * v2
+v1 <= v1 + v3
+v2 <= v2 + $-1
+if v2 4
+Valor retornado -> 355
+
+
+
+=====================================================================
+
+Tratamento de Erros:
+=====================================================================
+
+CASO 1)
+
+Código passado no arquivo .linb:
+
+v1 <= $0 + $0    
+v2 <= $1 + $0    
+v3 <= $2 + $0    
+v4 <= $3 + $0    
+v5 <= $4 + $0     
+
+v1 <= v1 + v2 * v2 
+v1 <= v1 + v3 * v3 
+v1 <= v1 + v4 * v4   
+v1 <= v1 + v5 * v5     
+
+v2 <= $5 + $0       
+v1 <= v1 + v2 * v2    
+
+ret      
+
+
+Saída no Terminal:
+
+v1 <= $0 + $0
+v2 <= $1 + $0
+v3 <= $2 + $0
+v4 <= $3 + $0
+v1 <= v1 + v2
+erro comando inválido detectado na linha 6
+
+=====================================================================
+
+CASO 2) acima de 50 linhas
+
+v1 <= $0 + $0 
+v2 <= $1 + $0         
+p1 <= p1 + $1          
+v3 <= p1 - v2        
+if v3 7              
+ret                   
+v3 <= v2 * v2          
+v1 <= v1 + v3     
+v2 <= v2 + $1    // repetimos essa linha até bater mais de 50 linhas no arquivo. reduzimos aqui pra não ficar alongando muito o relatório
+if v2 4
+
+Saída no terminal:
+v1 = $0 + $0
+v2 = $1 + $0
+p1 = p1 + $1
+v3 = p1 - v2
+if v3 7
+ret
+v3 = v2 * v2
+v1 = v1 + v3
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+v2 = v2 + $1
+erro atingiu o máximo de linhas na linha 51
