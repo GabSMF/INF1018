@@ -6,5 +6,5 @@ Nota: 9.0
 
 Descrição do Segundo Trabalho: [Geração Dinâmica de Funções](http://www4.inf.puc-rio.br/~inf1018/2024.1/trabs/t2/trab2-20241.html)
 
-Nota: 
+Nota: 9.8
 
